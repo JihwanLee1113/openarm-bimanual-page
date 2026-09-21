@@ -88,8 +88,8 @@
   <div class="wrap">
     <h1>A GPU-Parallel Trajectory-Optimization Planning Pipeline for Bimanual Relative-Pose Constraints in Cluttered Environments</h1>
     <p class="ko">장애물 환경에서 양팔 상대 포즈 제약을 만족하는 GPU 병렬 궤적 최적화 플래닝 파이프라인 개발</p>
-    <p class="authors">저자명(작성 필요)<sup>1</sup> · 지도교수명(작성 필요)<sup>*1</sup></p>
-    <p class="affil"><sup>1</sup> 경희대학교 소속 학과(작성 필요) · 2026 제3회 융합과 혁신: 학부 연구생 학술제</p>
+    <p class="authors">이지환<sup>1</sup> · 김상현<sup>2</sup></p>
+    <p class="affil"><sup>1</sup> 경희대학교 공과대학 사회기반시스템공학과 · <sup>2</sup> 경희대학교 공과대학 기계공학부<br>2026 제3회 융합과 혁신: 학부 연구생 학술제</p>
     <div class="btns">
       <a class="btn" href="#">Poster PDF</a>
       <a class="btn" href="#">Abstract</a>
@@ -143,6 +143,37 @@
       </div>
     </div>
     <p class="note" id="heroNote"></p>
+  </div>
+</section>
+
+<section id="quality">
+  <div class="wrap">
+    <h2>가장 강한 기존 방식과는, 놓치느냐가 아니라 매끄러움에서 갈린다</h2>
+    <p class="sub">선도–추종(LF)은 제약을 구성상 만족하므로 물체를 놓치지 않는다. 차이는 <b>추종 팔의 궤적 품질</b>이며, 이것이 실기에서 진동과 관절 부하로 나타난다. 그래프는 영상과 동기된 추종 팔 관절 저크다.</p>
+
+    <div class="controls">
+      <button class="play" id="play2">▶ 재생</button>
+      <input class="scrub" id="scrub2" type="range" min="0" max="1000" value="0" step="1" aria-label="재생 위치">
+      <span class="tnow" id="tnow2">0.00 s</span>
+    </div>
+
+    <div class="hero-grid">
+      <div class="panel">
+        <div class="head"><span class="dot" style="background:#eb6834"></span><span class="pname">LF</span>
+          <span class="ptag">선도–추종 역기구학 (기존 최선)</span></div>
+        <video id="vLf" playsinline muted preload="auto"></video>
+        <div class="chart-box"><canvas id="cLf"></canvas></div>
+        <div class="cap" id="lfCap"></div>
+      </div>
+      <div class="panel">
+        <div class="head"><span class="dot ours"></span><span class="pname">Ours</span>
+          <span class="ptag">제안 파이프라인</span></div>
+        <video id="vOurs2" playsinline muted preload="auto"></video>
+        <div class="chart-box"><canvas id="cOurs2"></canvas></div>
+        <div class="cap" id="ours2Cap"></div>
+      </div>
+    </div>
+    <p class="note" id="jerkNote"></p>
   </div>
 </section>
 
@@ -221,7 +252,7 @@
     <pre>@misc{openarm_bimanual_2026,
   title  = {A GPU-Parallel Trajectory-Optimization Planning Pipeline for
             Bimanual Relative-Pose Constraints in Cluttered Environments},
-  author = {저자명(작성 필요) and 지도교수명(작성 필요)},
+  author = {이지환 and 김상현},
   year   = {2026},
   note   = {제3회 융합과 혁신: 학부 연구생 학술제, 경희대학교}
 }</pre>
@@ -332,6 +363,53 @@ const HERO = {"limit_N":25.0,"case":16,"fail":{"label":"Soft+Proj","video":"vide
                       vO.currentTime = Math.min(vF.currentTime, vO.duration); }, 250);
   window.addEventListener('resize', render);
   requestAnimationFrame(loop);
+})();
+
+const JERK = {"case":16,"metric":"추종 팔 관절 저크","unit":"rad/s³","note":"3배 느린 재생 기준. 계획 속도로 환산하면 27배 커진다.","lf":{"label":"LF","video":"videos/lf_case16.mp4","poster":"videos/lf_case16_poster.jpg","peak":100.63,"series":[{"t":0.0,"j":0.0},{"t":0.034,"j":0.0},{"t":0.068,"j":0.0},{"t":0.1,"j":0.0},{"t":0.134,"j":0.0},{"t":0.168,"j":0.0},{"t":0.2,"j":96.94},{"t":0.234,"j":100.63},{"t":0.268,"j":66.66},{"t":0.3,"j":27.1},{"t":0.334,"j":28.14},{"t":0.368,"j":26.81},{"t":0.4,"j":18.3},{"t":0.434,"j":12.68},{"t":0.468,"j":11.97},{"t":0.5,"j":9.71},{"t":0.534,"j":6.3},{"t":0.568,"j":6.19},{"t":0.6,"j":6.75},{"t":0.634,"j":4.03},{"t":0.668,"j":2.27},{"t":0.7,"j":3.56},{"t":0.734,"j":4.02},{"t":0.768,"j":3.21},{"t":0.8,"j":2.8},{"t":0.834,"j":2.6},{"t":0.868,"j":3.61},{"t":0.9,"j":4.82},{"t":0.934,"j":4.85},{"t":0.968,"j":5.08},{"t":1.0,"j":5.87},{"t":1.034,"j":6.72},{"t":1.068,"j":7.56},{"t":1.1,"j":8.16},{"t":1.134,"j":8.68},{"t":1.168,"j":8.76},{"t":1.2,"j":8.76},{"t":1.234,"j":9.04},{"t":1.268,"j":8.97},{"t":1.3,"j":7.83},{"t":1.334,"j":7.34},{"t":1.368,"j":7.86},{"t":1.4,"j":7.1},{"t":1.434,"j":5.48},{"t":1.468,"j":5.65},{"t":1.5,"j":6.16},{"t":1.534,"j":4.52},{"t":1.568,"j":3.28},{"t":1.6,"j":3.35},{"t":1.634,"j":2.71},{"t":1.668,"j":1.04},{"t":1.7,"j":1.1},{"t":1.734,"j":2.19},{"t":1.768,"j":1.59},{"t":1.8,"j":0.68},{"t":1.834,"j":1.22},{"t":1.868,"j":1.56},{"t":1.9,"j":1.26},{"t":1.934,"j":1.26},{"t":1.968,"j":1.7},{"t":2.0,"j":1.44},{"t":2.034,"j":0.74},{"t":2.068,"j":1.63},{"t":2.1,"j":2.8},{"t":2.134,"j":2.38},{"t":2.168,"j":2.43},{"t":2.2,"j":3.87},{"t":2.234,"j":4.65},{"t":2.268,"j":4.35},{"t":2.3,"j":4.92},{"t":2.334,"j":6.09},{"t":2.368,"j":6.38},{"t":2.4,"j":6.48},{"t":2.434,"j":7.42},{"t":2.468,"j":8.1},{"t":2.5,"j":7.99},{"t":2.534,"j":7.85},{"t":2.568,"j":7.66},{"t":2.6,"j":7.32},{"t":2.634,"j":6.84},{"t":2.668,"j":6.58},{"t":2.7,"j":6.37},{"t":2.734,"j":5.74},{"t":2.768,"j":5.17},{"t":2.8,"j":4.84},{"t":2.834,"j":4.36},{"t":2.868,"j":3.68},{"t":2.9,"j":3.34},{"t":2.934,"j":3.17},{"t":2.968,"j":2.44},{"t":3.0,"j":1.64},{"t":3.034,"j":1.47},{"t":3.068,"j":1.35},{"t":3.1,"j":1.43},{"t":3.134,"j":1.69},{"t":3.168,"j":2.22},{"t":3.2,"j":3.22},{"t":3.234,"j":4.62},{"t":3.268,"j":5.32},{"t":3.3,"j":5.85},{"t":3.334,"j":7.44},{"t":3.368,"j":8.86},{"t":3.4,"j":9.72},{"t":3.434,"j":11.54},{"t":3.468,"j":14.68},{"t":3.5,"j":15.58},{"t":3.534,"j":15.23},{"t":3.568,"j":16.31},{"t":3.6,"j":17.62},{"t":3.634,"j":19.1},{"t":3.668,"j":20.23},{"t":3.7,"j":20.19},{"t":3.734,"j":20.22},{"t":3.768,"j":20.35},{"t":3.8,"j":19.63},{"t":3.834,"j":18.34},{"t":3.868,"j":16.63}]},"ours":{"label":"Ours","video":"videos/ours_case16.mp4","poster":"videos/ours_case16_poster.jpg","peak":9.29,"series":[{"t":0.0,"j":0.0},{"t":0.034,"j":0.0},{"t":0.068,"j":0.0},{"t":0.1,"j":0.0},{"t":0.134,"j":0.0},{"t":0.168,"j":0.0},{"t":0.2,"j":7.47},{"t":0.234,"j":9.29},{"t":0.268,"j":5.84},{"t":0.3,"j":1.54},{"t":0.334,"j":0.81},{"t":0.368,"j":0.57},{"t":0.4,"j":1.8},{"t":0.434,"j":2.32},{"t":0.468,"j":1.71},{"t":0.5,"j":1.14},{"t":0.534,"j":0.53},{"t":0.568,"j":0.38},{"t":0.6,"j":0.33},{"t":0.634,"j":0.54},{"t":0.668,"j":0.67},{"t":0.7,"j":0.59},{"t":0.734,"j":0.54},{"t":0.768,"j":0.54},{"t":0.8,"j":0.54},{"t":0.834,"j":0.54},{"t":0.868,"j":0.52},{"t":0.9,"j":0.49},{"t":0.934,"j":0.5},{"t":0.968,"j":0.5},{"t":1.0,"j":0.46},{"t":1.034,"j":0.56},{"t":1.068,"j":0.85},{"t":1.1,"j":0.77},{"t":1.134,"j":0.48},{"t":1.168,"j":0.6},{"t":1.2,"j":0.81},{"t":1.234,"j":0.75},{"t":1.268,"j":0.74},{"t":1.3,"j":0.92},{"t":1.334,"j":1.0},{"t":1.368,"j":0.9},{"t":1.4,"j":0.77},{"t":1.434,"j":0.6},{"t":1.468,"j":0.71},{"t":1.5,"j":0.87},{"t":1.534,"j":0.86},{"t":1.568,"j":0.81},{"t":1.6,"j":0.62},{"t":1.634,"j":0.56},{"t":1.668,"j":0.71},{"t":1.7,"j":0.72},{"t":1.734,"j":0.64},{"t":1.768,"j":0.61},{"t":1.8,"j":0.59},{"t":1.834,"j":0.75},{"t":1.868,"j":0.84},{"t":1.9,"j":0.73},{"t":1.934,"j":0.65},{"t":1.968,"j":0.62},{"t":2.0,"j":0.7},{"t":2.034,"j":0.85},{"t":2.068,"j":0.83},{"t":2.1,"j":0.77},{"t":2.134,"j":0.8},{"t":2.168,"j":0.8},{"t":2.2,"j":0.73},{"t":2.234,"j":0.76},{"t":2.268,"j":0.93},{"t":2.3,"j":0.91},{"t":2.334,"j":0.78},{"t":2.368,"j":0.84},{"t":2.4,"j":0.92},{"t":2.434,"j":0.8},{"t":2.468,"j":0.72},{"t":2.5,"j":0.78},{"t":2.534,"j":0.8},{"t":2.568,"j":0.75},{"t":2.6,"j":0.85},{"t":2.634,"j":1.06},{"t":2.668,"j":0.95},{"t":2.7,"j":0.78},{"t":2.734,"j":0.74},{"t":2.768,"j":0.76},{"t":2.8,"j":0.98},{"t":2.834,"j":0.99},{"t":2.868,"j":0.71},{"t":2.9,"j":0.58},{"t":2.934,"j":0.52},{"t":2.968,"j":0.89},{"t":3.0,"j":1.32},{"t":3.034,"j":1.01},{"t":3.068,"j":0.84},{"t":3.1,"j":1.12},{"t":3.134,"j":1.21},{"t":3.168,"j":1.01},{"t":3.2,"j":0.95},{"t":3.234,"j":0.96},{"t":3.268,"j":0.71},{"t":3.3,"j":0.42},{"t":3.334,"j":0.66},{"t":3.368,"j":0.81},{"t":3.4,"j":0.65},{"t":3.434,"j":0.52},{"t":3.468,"j":0.44},{"t":3.5,"j":0.75},{"t":3.534,"j":1.31},{"t":3.568,"j":1.01},{"t":3.6,"j":0.56},{"t":3.634,"j":0.54},{"t":3.668,"j":0.52},{"t":3.7,"j":0.46},{"t":3.734,"j":0.42},{"t":3.768,"j":0.41},{"t":3.8,"j":0.36},{"t":3.834,"j":0.27},{"t":3.868,"j":0.26},{"t":3.9,"j":0.28},{"t":3.934,"j":0.33},{"t":3.968,"j":0.39},{"t":4.0,"j":0.47},{"t":4.034,"j":0.56}]}};
+(function(){
+  if(!JERK) return;
+  const vA=document.getElementById('vLf'), vB=document.getElementById('vOurs2');
+  const cA=document.getElementById('cLf'), cB=document.getElementById('cOurs2');
+  const btn=document.getElementById('play2'), sc=document.getElementById('scrub2'), tn=document.getElementById('tnow2');
+  vA.src=JERK.lf.video; vA.poster=JERK.lf.poster; vB.src=JERK.ours.video; vB.poster=JERK.ours.poster;
+  const S={lf:JERK.lf.series.map(r=>[r.t,r.j]), ours:JERK.ours.series.map(r=>[r.t,r.j])};
+  const T=Math.max(S.lf[S.lf.length-1][0], S.ours[S.ours.length-1][0]);
+  const YMAX=Math.max(JERK.lf.peak, JERK.ours.peak)*1.12;
+  const css=getComputedStyle(document.documentElement);
+  const C={lf:css.getPropertyValue('--limit').trim(), ours:css.getPropertyValue('--ours').trim(),
+           line:css.getPropertyValue('--line').trim(), muted:css.getPropertyValue('--muted').trim()};
+  document.getElementById('lfCap').textContent   = `추종 팔 최대 저크 ${JERK.lf.peak.toFixed(0)} ${JERK.unit} — 팔꿈치와 손목이 구간마다 급하게 방향을 바꾼다.`;
+  document.getElementById('ours2Cap').textContent= `추종 팔 최대 저크 ${JERK.ours.peak.toFixed(0)} ${JERK.unit} — 같은 과제에서 ${(JERK.lf.peak/JERK.ours.peak).toFixed(0)}분의 1.`;
+  document.getElementById('jerkNote').textContent = JERK.note + ' 두 궤적 모두 상대 자세 오차는 0.02 mm 이내이며 물체를 놓치지 않는다.';
+  function draw(cv,key,tCur){
+    const pts=S[key], color=C[key], dpr=window.devicePixelRatio||1;
+    const W=cv.clientWidth,H=cv.clientHeight;
+    if(cv.width!==W*dpr||cv.height!==H*dpr){cv.width=W*dpr;cv.height=H*dpr;}
+    const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
+    const L=38,R=8,Tp=10,B=18,w=W-L-R,h=H-Tp-B;
+    const X=t=>L+(t/T)*w, Y=v=>Tp+h-(v/YMAX)*h;
+    g.strokeStyle=C.line; g.lineWidth=1; g.font='10px ui-monospace,monospace'; g.fillStyle=C.muted; g.textAlign='right';
+    [0,50,100].filter(v=>v<=YMAX).forEach(v=>{g.beginPath();g.moveTo(L,Y(v));g.lineTo(W-R,Y(v));g.stroke();g.fillText(String(v),L-5,Y(v)+3);});
+    g.strokeStyle=color; g.lineWidth=2; g.lineJoin='round'; g.beginPath(); let st=false;
+    for(const [t,v] of pts){ if(t>tCur+1e-6) break; if(!st){g.moveTo(X(t),Y(v));st=true;} else g.lineTo(X(t),Y(v)); }
+    if(st) g.stroke();
+    g.strokeStyle=C.muted; g.lineWidth=1; g.beginPath(); g.moveTo(X(tCur),Tp); g.lineTo(X(tCur),Tp+h); g.stroke();
+    g.fillStyle=C.muted; g.textAlign='left'; g.fillText('추종 팔 저크 [rad/s³]',L+2,Tp+10);
+    g.textAlign='center'; g.fillText('0 s',L,H-5); g.fillText(T.toFixed(1)+' s',W-R-10,H-5);
+  }
+  let drag=false, on=false;
+  function setT(t){t=Math.max(0,Math.min(T,t)); vA.currentTime=Math.min(t,vA.duration||T); vB.currentTime=Math.min(t,vB.duration||T);}
+  function play(){on=true;btn.textContent='❚❚ 일시정지';vA.play();vB.play();}
+  function pause(){on=false;btn.textContent='▶ 재생';vA.pause();vB.pause();}
+  btn.addEventListener('click',()=> on?pause():(vA.currentTime>=T-0.05?(setT(0),play()):play()));
+  sc.addEventListener('input',e=>{drag=true;setT(T*e.target.value/1000);});
+  sc.addEventListener('change',()=>{drag=false;});
+  vA.addEventListener('ended',pause);
+  setInterval(()=>{ if(on&&Math.abs(vA.currentTime-vB.currentTime)>0.12&&vB.duration) vB.currentTime=Math.min(vA.currentTime,vB.duration); },250);
+  (function loop(){ const t=vA.currentTime; draw(cA,'lf',t); draw(cB,'ours',vB.currentTime);
+    tn.textContent=t.toFixed(2)+' s'; if(!drag) sc.value=String(Math.round(t/T*1000));
+    requestAnimationFrame(loop); })();
+  window.addEventListener('resize',()=>{draw(cA,'lf',vA.currentTime);draw(cB,'ours',vB.currentTime);});
 })();
 </script>
 </body>
