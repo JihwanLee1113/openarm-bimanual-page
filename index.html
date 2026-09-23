@@ -226,7 +226,7 @@ const CMP = {"case":16,"limit_N":25.0,"note":"MuJoCo 재생, 선반 과제 case 
     p.innerHTML='<div class="head"><span class="dot" style="background:'+COL[i]+'"></span>'
       +'<span class="pname">'+m.label+'</span><span class="ptag">'+m.tag+'</span></div>'
       +'<video playsinline muted preload="auto"></video>'
-      +'<div class="verdict ours">'+(m.held?'HELD':'파지 유지')+'</div>'
+      +'<div class="verdict ours">파지 유지</div>'
       +'<div class="cap">최대 파지력 '+m.peak_N.toFixed(1)+' N · 추종 팔 최대 저크 '+jt(m.peak_j)+'</div>';
     grid.appendChild(p);
     const v=p.querySelector('video'); v.src=m.video; v.poster=m.poster; vids.push(v);
