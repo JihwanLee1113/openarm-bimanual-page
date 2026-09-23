@@ -144,7 +144,7 @@
     </div>
 
     <p class="note" id="cmpNote"></p>
-    <p class="note"><b>Soft+Proj 영상에서 트레이가 바닥에 떨어지지는 않는다.</b> 한쪽 손의 파지가 풀린 뒤에도 반대쪽 손이 물체를 붙들고 있기 때문이다. 실패한 것은 낙하가 아니라 <b>두 손으로 함께 옮기는 것</b>이며, 이 시점부터 물체는 한 손에 매달린 채 계획과 다른 자세로 끌려간다. 선반 과제 9건 중 두 손이 모두 풀려 실제로 물체를 놓친 경우는 2건이었다.</p>
+    <p class="note"><b>Soft+Proj 영상은 파지가 풀리는 순간 멈춘다.</b> 그 뒤로는 한쪽 손이 물체를 붙든 채 계획과 다른 자세로 끌고 갈 뿐이라 볼 것이 없다. 실패한 것은 낙하가 아니라 <b>두 손으로 함께 옮기는 것</b>이며, 선반 과제 9건 중 두 손이 모두 풀려 물체를 실제로 놓친 경우는 2건이었다.</p>
     <p class="note"><b>25 N은 그리퍼 사양이 아니라 모델링 값이다.</b> 손끝과 트레이 사이를 강성 약 4 kN/m의 용접 제약으로 묶고 한계를 25 N으로 두면 두 손이 약 6 mm 벌어질 때 파지가 풀린다 — 계획 단계의 성공 기준(5 mm)과 파지가 풀리는 지점이 서로 어긋나지 않게 맞춘 값이다. (트레이 0.35 kg을 중력에 대해 드는 데 필요한 힘은 3.4 N 수준이다.)</p>
   </div>
 </section>
@@ -210,20 +210,24 @@ const CMP = {"case":16,"limit_N":25.0,"note":"MuJoCo 재생, 선반 과제 case 
   const C={ink:css.getPropertyValue('--ours').trim(), fail:css.getPropertyValue('--fail').trim(),
            lf:css.getPropertyValue('--accent').trim(), line:css.getPropertyValue('--line').trim(),
            muted:css.getPropertyValue('--muted').trim()};
-  const M=CMP.methods, COL=[C.fail,C.lf,C.ink], T=Math.max.apply(null,M.map(m=>m.dur));
-  const vids=[], num=x=>Math.round(x).toLocaleString('ko-KR'), jt=x=>x>=100?num(x):x.toFixed(1);
+  const M=CMP.methods, COL=[C.fail,C.lf,C.ink];
+  // 파지가 풀리는 순간 그 영상은 얼어붙는다 — 그 뒤로는 물체가 한 손에 끌려갈 뿐이라 볼 것이 없다.
+  const STOP=M.map(m=>m.held ? Math.max(0,m.dur-0.02) : Math.min(m.dur-0.02, m.lost_t+0.10));
+  const T=Math.max.apply(null,STOP);
+  const vids=[], panels=[], badges=[], num=x=>Math.round(x).toLocaleString('ko-KR'), jt=x=>x>=100?num(x):x.toFixed(1);
 
   M.forEach((m,i)=>{
-    const p=document.createElement('div'); p.className='panel'+(m.held?'':' fail');
+    const p=document.createElement('div'); p.className='panel';
     p.innerHTML='<div class="head"><span class="dot" style="background:'+COL[i]+'"></span>'
       +'<span class="pname">'+m.label+'</span><span class="ptag">'+m.tag+'</span></div>'
       +'<video playsinline muted preload="auto"></video>'
-      +'<div class="verdict '+(m.held?'ours':'fail')+'">'+(m.held?'HELD':'파지 풀림 · t = '+m.lost_t.toFixed(2)+' s')+'</div>'
+      +'<div class="verdict ours">'+(m.held?'HELD':'파지 유지')+'</div>'
       +'<div class="cap">최대 파지력 '+m.peak_N.toFixed(1)+' N · 추종 팔 최대 저크 '+jt(m.peak_j)+'</div>';
     grid.appendChild(p);
     const v=p.querySelector('video'); v.src=m.video; v.poster=m.poster; vids.push(v);
+    panels.push(p); badges.push(p.querySelector('.verdict'));
   });
-  const master=vids[M.map(m=>m.dur).indexOf(T)];
+  const master=vids[STOP.indexOf(T)];   // 가장 늦게까지 도는 영상이 재생 시계를 맡는다
 
   document.getElementById('cmpNote').textContent = CMP.note;
 
@@ -255,12 +259,19 @@ const CMP = {"case":16,"limit_N":25.0,"note":"MuJoCo 재생, 선반 과제 case 
       lx-=g.measureText(n).width+6; g.fillStyle=COL[i]; g.fillRect(lx-8,Tp+2,8,8); lx-=16; }
   }
 
-  function render(){ const t=master.currentTime;
+  function render(){ const t=master.currentTime; freeze(); verdicts(t);
     chart(cF, s=>s.F, 30, '필요 파지력 [N]', [0,10,20,30], [[CMP.limit_N, CMP.limit_N+' N 파지 한계', C.fail]], t, false);
     chart(cJ, s=>s.j, 20000, '추종 팔 저크 [rad/s³]', [1,10,100,1000,10000], null, t, true);
     tn.textContent=t.toFixed(2)+' s'; if(!drag) sc.value=String(Math.round(t/T*1000));
   }
-  function seek(t){ vids.forEach((v,i)=>{ try{ v.currentTime=Math.min(t, M[i].dur-0.02); }catch(e){} }); }
+  function seek(t){ vids.forEach((v,i)=>{ try{ v.currentTime=Math.min(t, STOP[i]); }catch(e){} }); }
+  function freeze(){ vids.forEach((v,i)=>{ if(!v.paused && v.currentTime >= STOP[i]-0.01){ v.pause();
+    try{ v.currentTime=STOP[i]; }catch(e){} } }); }
+  function verdicts(t){ M.forEach((m,i)=>{ if(m.held) return;
+    const lost = t >= m.lost_t - 1e-3;
+    badges[i].className = 'verdict ' + (lost ? 'fail' : 'ours');
+    badges[i].textContent = lost ? ('파지 풀림 · t = '+m.lost_t.toFixed(2)+' s') : '파지 유지';
+    panels[i].className = 'panel' + (lost ? ' fail' : ''); }); }
   let drag=false,on=false;
   btn.addEventListener('click',()=>{ if(on){vids.forEach(v=>v.pause());on=false;btn.textContent='▶ 재생';}
     else{ if(master.currentTime>=T-0.05) seek(0); vids.forEach(v=>v.play().catch(()=>{})); on=true; btn.textContent='❚❚ 일시정지'; } });
