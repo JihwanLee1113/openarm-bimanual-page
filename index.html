@@ -42,6 +42,11 @@
   .ptag{margin-left:auto;font-size:12px;color:var(--muted)}
   video{width:100%;display:block;background:#111;aspect-ratio:16/9;object-fit:cover}
   .chart-box{padding:10px 12px 12px;background:#fff}
+  .pipefig{margin:20px 0 0;padding:0}
+  .pipefig img{width:100%;max-width:620px;display:block;margin:0 auto;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .pipefig .zoom{margin:6px 0 0;text-align:center;font-size:11.5px;color:var(--muted)}
+  @media (min-width:860px){ .pipefig .zoom{display:none} }
+  .pipefig figcaption{max-width:720px;margin:10px auto 0;font-size:13px;line-height:1.6;color:var(--ink2);text-align:left}
   .tri-grid{display:grid;gap:16px}
   #real .panel{display:flex;flex-direction:column}
   #real .chart-box{flex:1;display:flex;min-height:0}
@@ -104,13 +109,13 @@
     <p class="lead">두 팔로 물체를 단단히 잡고 옮기려면 두 손끝의 상대 자세가 궤적 전 구간에서 일정해야 하고, 어긋나면 물체에 무리한 힘이 걸려 놓치게 된다.
     널리 쓰이는 GPU 병렬 궤적 최적화기 <b>cuRobo</b>는 팔마다 목표 자세만 받을 뿐 두 팔을 하나로 묶는 이런 등식 제약을 표현할 인터페이스가 없으며, 공식 문서는 사용자가 비용 항으로 직접 구현하라고 안내한다.
     본 연구에서는 <b>최적화기를 수정하지 않고</b> 플래너의 확장 지점 — 초기 경로 · 비용 함수 · 후처리 — 만으로 장애물 환경에서 이 제약을 지키는 플래닝 파이프라인을 만들었다.</p>
-    <div class="kpis">
-      <div class="kpi"><b>50/50</b><span>선반 과제 성공 (공식 문서 방식 0–10 %)</span></div>
-      <div class="kpi"><b>0.02 mm</b><span>최대 상대 자세 오차</span></div>
-      <div class="kpi"><b>1/32</b><span>1단계 대비 추종 팔 최대 저크</span></div>
-      <div class="kpi"><b>148/150</b><span>트레이 배치 다섯 조건 전체</span></div>
-      <div class="kpi"><b>실제 로봇</b><span>OpenArm V1.0에서 파지 유지, 토크 한계의 23 %</span></div>
-    </div>
+    <figure class="pipefig">
+      <a href="img/pipeline.png" target="_blank" rel="noopener">
+        <img src="img/pipeline.png" alt="제안 파이프라인: cuRobo 계획 단계와 세 확장 지점">
+      </a>
+      <p class="zoom">그림을 누르면 크게 볼 수 있다</p>
+      <figcaption>계획 과정은 그대로 두고 <b>세 지점</b>에만 개입한다. ① 도달 가능성을 고려한 선도–추종 궤적으로 초기 경로를 바꾸고, ② 두 손끝 상대 자세 오차를 비용 함수에 더하고, ③ 결과 궤적에 평활화와 양팔 역기구학 투영을 여섯 번 번갈아 적용한다. ②·③이 실패하면 ①을 반환한다.</figcaption>
+    </figure>
   </div>
 </section>
 
