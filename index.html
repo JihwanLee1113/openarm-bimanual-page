@@ -35,6 +35,11 @@
   .hero-grid{display:grid;gap:16px}
   .panel{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
   .panel.fail{border-color:#f0cdc4}
+  .panel video{transition:filter .45s ease}
+  .panel.fail video{filter:grayscale(1) brightness(.55) contrast(1.05)}
+  .verdict{transition:background .25s ease}
+  @keyframes lostflash{0%{transform:scale(1)}18%{transform:scale(1.04)}100%{transform:scale(1)}}
+  .verdict.fail{animation:lostflash .5s ease-out 1}
   .panel .head{display:flex;align-items:center;gap:8px;padding:11px 14px;background:#fff;border-bottom:1px solid var(--line)}
   .dot{width:9px;height:9px;border-radius:50%;flex:none}
   .dot.fail{background:var(--fail)} .dot.ours{background:var(--ours)}
@@ -231,7 +236,7 @@ const CMP = {"case":16,"limit_N":25.0,"note":"MuJoCo 재생, 선반 과제 case 
 
   document.getElementById('cmpNote').textContent = CMP.note;
 
-  function chart(cv,pick,ymax,label,ticks,refs,tCur,log){
+  function chart(cv,pick,ymax,label,ticks,refs,tCur,log,mark){
     const dpr=window.devicePixelRatio||1, W=cv.clientWidth, H=cv.clientHeight;
     if(cv.width!==W*dpr||cv.height!==H*dpr){cv.width=W*dpr;cv.height=H*dpr;}
     const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
@@ -251,6 +256,12 @@ const CMP = {"case":16,"limit_N":25.0,"note":"MuJoCo 재생, 선반 과제 case 
         const y=Y(pick(s)); if(!st){g.moveTo(X(s.t),y);st=true;} else g.lineTo(X(s.t),y); }
       if(st) g.stroke();
     });
+    if(mark) M.forEach((m,i)=>{ if(m.held || tCur < m.lost_t-1e-3) return;
+      const cx=X(m.lost_t), cy=Y(m.peak_N);      // 한계선을 넘은 바로 그 점
+      g.save(); g.setLineDash([3,3]); g.strokeStyle=COL[i]; g.lineWidth=1.2;
+      g.beginPath(); g.moveTo(cx,cy); g.lineTo(cx,Tp+h); g.stroke(); g.setLineDash([]);
+      g.fillStyle='#fff'; g.lineWidth=2.4; g.beginPath(); g.arc(cx,cy,4.8,0,6.2832);
+      g.fill(); g.stroke(); g.restore(); });
     g.strokeStyle=C.muted; g.lineWidth=1; g.beginPath(); g.moveTo(X(tCur),Tp); g.lineTo(X(tCur),Tp+h); g.stroke();
     g.fillStyle=C.muted; g.font='10px '+CHART_FONT; g.textAlign='left'; g.fillText(label,L+2,Tp+9);
     let lx=W-R;
@@ -260,15 +271,18 @@ const CMP = {"case":16,"limit_N":25.0,"note":"MuJoCo 재생, 선반 과제 case 
   }
 
   function render(){ const t=master.currentTime; freeze(); verdicts(t);
-    chart(cF, s=>s.F, 30, '필요 파지력 [N]', [0,10,20,30], [[CMP.limit_N, CMP.limit_N+' N 파지 한계', C.fail]], t, false);
+    chart(cF, s=>s.F, 30, '필요 파지력 [N]', [0,10,20,30], [[CMP.limit_N, CMP.limit_N+' N 파지 한계', C.fail]], t, false, true);
     chart(cJ, s=>s.j, 20000, '추종 팔 저크 [rad/s³]', [1,10,100,1000,10000], null, t, true);
     tn.textContent=t.toFixed(2)+' s'; if(!drag) sc.value=String(Math.round(t/T*1000));
   }
   function seek(t){ vids.forEach((v,i)=>{ try{ v.currentTime=Math.min(t, STOP[i]); }catch(e){} }); }
   function freeze(){ vids.forEach((v,i)=>{ if(!v.paused && v.currentTime >= STOP[i]-0.01){ v.pause();
     try{ v.currentTime=STOP[i]; }catch(e){} } }); }
+  const wasLost=M.map(()=>null);
   function verdicts(t){ M.forEach((m,i)=>{ if(m.held) return;
     const lost = t >= m.lost_t - 1e-3;
+    if(wasLost[i]===lost) return;                 // 상태가 바뀔 때만 손댄다 (매 프레임 쓰면 애니메이션이 되살아난다)
+    wasLost[i]=lost;
     badges[i].className = 'verdict ' + (lost ? 'fail' : 'ours');
     badges[i].textContent = lost ? ('파지 풀림 · t = '+m.lost_t.toFixed(2)+' s') : '파지 유지';
     panels[i].className = 'panel' + (lost ? ' fail' : ''); }); }
