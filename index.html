@@ -122,7 +122,7 @@
 <section id="hero">
   <div class="wrap">
     <h2>물리 시뮬레이션 — MuJoCo</h2>
-    <p class="sub">같은 과제(아래 칸 → 위 칸) · 같은 케이스 · 같은 카메라로 세 방식을 나란히 재생한다. 아래 두 그래프는 영상과 시간이 맞춰져 있다. <b>필요 파지력</b>은 두 손 중 큰 쪽이며, 25 N을 넘는 순간 물체를 놓친다. <b>추종 팔 저크</b>는 궤적이 얼마나 거친지를 나타낸다 — 세 방식이 1000배 차이로 갈려 로그 눈금으로 그렸다.</p>
+    <p class="sub">같은 과제(아래 칸 → 위 칸) · 같은 케이스 · 같은 카메라로 세 방식을 나란히 재생한다. 아래 두 그래프는 영상과 시간이 맞춰져 있다. <b>필요 파지력</b>은 두 손 중 큰 쪽이며, 25 N을 넘으면 그 손의 파지가 풀린다. <b>추종 팔 저크</b>는 궤적이 얼마나 거친지를 나타낸다 — 세 방식이 1000배 차이로 갈려 로그 눈금으로 그렸다.</p>
 
     <div class="controls">
       <button class="play" id="play">▶ 재생</button>
@@ -134,7 +134,7 @@
 
     <div class="hero-grid" style="margin-top:16px">
       <div class="panel">
-        <div class="head"><span class="pname">필요 파지력</span><span class="ptag">25 N을 넘으면 놓친다</span></div>
+        <div class="head"><span class="pname">필요 파지력</span><span class="ptag">25 N을 넘으면 파지가 풀린다</span></div>
         <div class="chart-box"><canvas id="cForce"></canvas></div>
       </div>
       <div class="panel">
@@ -144,7 +144,8 @@
     </div>
 
     <p class="note" id="cmpNote"></p>
-    <p class="note"><b>25 N은 그리퍼 사양이 아니라 모델링 값이다.</b> 손끝과 트레이 사이를 강성 약 4 kN/m의 용접 제약으로 묶고 한계를 25 N으로 두면 두 손이 약 6 mm 벌어질 때 파지가 풀린다 — 계획 단계의 성공 기준(5 mm)과 실제로 물체를 놓치는 지점이 서로 어긋나지 않게 맞춘 값이다. (트레이 0.35 kg을 중력에 대해 드는 데 필요한 힘은 3.4 N 수준이다.)</p>
+    <p class="note"><b>Soft+Proj 영상에서 트레이가 바닥에 떨어지지는 않는다.</b> 한쪽 손의 파지가 풀린 뒤에도 반대쪽 손이 물체를 붙들고 있기 때문이다. 실패한 것은 낙하가 아니라 <b>두 손으로 함께 옮기는 것</b>이며, 이 시점부터 물체는 한 손에 매달린 채 계획과 다른 자세로 끌려간다. 선반 과제 9건 중 두 손이 모두 풀려 실제로 물체를 놓친 경우는 2건이었다.</p>
+    <p class="note"><b>25 N은 그리퍼 사양이 아니라 모델링 값이다.</b> 손끝과 트레이 사이를 강성 약 4 kN/m의 용접 제약으로 묶고 한계를 25 N으로 두면 두 손이 약 6 mm 벌어질 때 파지가 풀린다 — 계획 단계의 성공 기준(5 mm)과 파지가 풀리는 지점이 서로 어긋나지 않게 맞춘 값이다. (트레이 0.35 kg을 중력에 대해 드는 데 필요한 힘은 3.4 N 수준이다.)</p>
   </div>
 </section>
 
@@ -217,7 +218,7 @@ const CMP = {"case":16,"limit_N":25.0,"note":"MuJoCo 재생, 선반 과제 case 
     p.innerHTML='<div class="head"><span class="dot" style="background:'+COL[i]+'"></span>'
       +'<span class="pname">'+m.label+'</span><span class="ptag">'+m.tag+'</span></div>'
       +'<video playsinline muted preload="auto"></video>'
-      +'<div class="verdict '+(m.held?'ours':'fail')+'">'+(m.held?'HELD':'GRASP LOST · t = '+m.lost_t.toFixed(2)+' s')+'</div>'
+      +'<div class="verdict '+(m.held?'ours':'fail')+'">'+(m.held?'HELD':'파지 풀림 · t = '+m.lost_t.toFixed(2)+' s')+'</div>'
       +'<div class="cap">최대 파지력 '+m.peak_N.toFixed(1)+' N · 추종 팔 최대 저크 '+jt(m.peak_j)+'</div>';
     grid.appendChild(p);
     const v=p.querySelector('video'); v.src=m.video; v.poster=m.poster; vids.push(v);
@@ -255,7 +256,7 @@ const CMP = {"case":16,"limit_N":25.0,"note":"MuJoCo 재생, 선반 과제 case 
   }
 
   function render(){ const t=master.currentTime;
-    chart(cF, s=>s.F, 30, '필요 파지력 [N]', [0,10,20,30], [[CMP.limit_N, CMP.limit_N+' N 한계', C.fail]], t, false);
+    chart(cF, s=>s.F, 30, '필요 파지력 [N]', [0,10,20,30], [[CMP.limit_N, CMP.limit_N+' N 파지 한계', C.fail]], t, false);
     chart(cJ, s=>s.j, 20000, '추종 팔 저크 [rad/s³]', [1,10,100,1000,10000], null, t, true);
     tn.textContent=t.toFixed(2)+' s'; if(!drag) sc.value=String(Math.round(t/T*1000));
   }
